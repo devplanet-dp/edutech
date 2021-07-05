@@ -1,0 +1,14 @@
+const String LoginViewRoute = "LoginView";
+const String SignUpViewRoute = "SignUp";
+const String HomeViewRoute = "HomeView";
+const String ProfileViewRoute = "ProfileView";
+const String SignUpCompleteRoute = "SignUpCompleteView";
+const String AccountUpdateRoute = "AccountUpdateView";
+const String FogotPasswordRoute = "FogotPasswordView";
+const String ResetPasswordRoute = "ResetPasswordView";
+const String WelcomeViewRoute = "WelcomeView";
+const String TermsViewRoute = "TermsViewRoute";
+const String UserAccountViewRoute = "UserAccountViewRoute";
+const String SettingsViewRoute = "SettingsView";
+const String ChangePwdViewRoute = "ChangePwdView";
+const String ForgotPwdRoute = "ForgotPwdView";
