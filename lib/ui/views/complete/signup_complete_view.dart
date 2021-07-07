@@ -1,11 +1,11 @@
-import 'package:edutech/viewmodel/complete/signup_complete_view_model.dart';
-import 'package:flutter/material.dart';
-import 'package:line_icons/line_icon.dart';
-import 'package:stacked/stacked.dart';
 import 'package:edutech/ui/shared/app_colors.dart';
 import 'package:edutech/ui/shared/shared_styles.dart';
 import 'package:edutech/ui/shared/ui_helpers.dart';
 import 'package:edutech/ui/widgets/busy_button.dart';
+import 'package:edutech/viewmodel/complete/signup_complete_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:line_icons/line_icon.dart';
+import 'package:stacked/stacked.dart';
 
 class SignUpCompleteView extends StatelessWidget {
   const SignUpCompleteView({Key key}) : super(key: key);
@@ -26,11 +26,11 @@ class SignUpCompleteView extends StatelessWidget {
                   children: [
                     verticalSpaceMedium,
                     Text(
-                      'congrats',
+                      'Congratulations!',
                       style: kHeading3Style,
                     ),
                     Text(
-                      'account_setup',
+                      'Your account has been setup successfully!',
                       style: kBodyStyle,
                     ),
                   ],

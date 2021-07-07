@@ -4,9 +4,12 @@ import 'package:edutech/constants/app_assets.dart';
 class AppLogoWidget extends StatelessWidget {
   final double radius;
   final double elevation;
+  final double height;
+  final double width;
+
   
 
-  const AppLogoWidget({Key key, this.radius = 4, this.elevation = 1})
+  const AppLogoWidget({Key key, this.radius = 4, this.elevation = 1, this.height = 90, this.width = 90, })
       : super(key: key);
 
   @override
@@ -17,8 +20,9 @@ class AppLogoWidget extends StatelessWidget {
       borderRadius: BorderRadius.circular(radius),
       child: Image.asset(
         kIcLogo,
-        width: 72,
-        height: 72,
+        width: width,
+        height: height,
+
       ),
     );
   }

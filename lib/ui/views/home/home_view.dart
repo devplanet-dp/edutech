@@ -1,14 +1,22 @@
 import 'package:animations/animations.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:edutech/model/sale.dart';
+import 'package:edutech/ui/drawer/drawer.dart';
+import 'package:edutech/ui/drawer/filter_drawer_view.dart';
+import 'package:edutech/ui/shared/app_colors.dart';
 import 'package:edutech/ui/shared/shared_styles.dart';
 import 'package:edutech/ui/shared/ui_helpers.dart';
 import 'package:edutech/ui/views/account/user_account_view.dart';
+import 'package:edutech/ui/views/sales/sale_item_view.dart';
+import 'package:edutech/ui/widgets/app_info.dart';
 import 'package:edutech/ui/widgets/app_title_widget.dart';
 import 'package:edutech/ui/widgets/avatar_widget.dart';
 import 'package:edutech/ui/widgets/busy_overlay.dart';
-import 'package:edutech/ui/widgets/tile_widget.dart';
-import 'package:edutech/utils/margin.dart';
+import 'package:edutech/ui/widgets/text_field_widget.dart';
+import 'package:edutech/utils/device_utils.dart';
 import 'package:edutech/viewmodel/home/home_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:stacked/stacked.dart';
 
@@ -24,55 +32,69 @@ class HomeView extends StatelessWidget {
         child: Scaffold(
           key: _scaffoldKey,
           appBar: _buildAppBar(context, model),
+          drawer: DrawerView(),
+          endDrawer: FilterDrawerView(
+            onSearchClicked: (DateTime startDate, DateTime endDate) {
+              model.setStartDate(startDate);
+              model.setEndDate(endDate);
+            },
+            onClearTapped: () {
+              model.clearFilter();
+            },
+          ),
           body: SingleChildScrollView(
             child: Padding(
               padding: fieldPadding,
               child: Column(
                 children: [
                   verticalSpaceMedium,
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      'hi',
-                      style: kBodyStyle.copyWith(fontWeight: FontWeight.bold),
-                    ),
+                  Row(
+                    children: [
+                      AutoSizeText(
+                        'Hi ${model.currentUser.name}',
+                        maxLines: 3,
+                        style: kBodyStyle.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Expanded(child: SizedBox()),
+                      InkWell(
+                        onTap: () => _scaffoldKey.currentState.openEndDrawer(),
+                        child: Icon(
+                          LineIcons.filter,
+                          color: kcPrimaryColor,
+                        ),
+                      )
+                    ],
                   ),
-                  verticalSpaceMedium,
-                  _buildTiles(model)
+                  verticalSpaceSmall,
+                  model.hasDateFilter ?? false
+                      ? Row(
+                          children: [
+                            Chip(
+                                label: Text(
+                              'From: ${model.startDate.year}-${model.startDate.month}-${model.startDate.day}',
+                              style: kCaptionStyle,
+                            )),
+                            Expanded(child: SizedBox()),
+                            Chip(
+                                label: Text(
+                                    'To: ${model.endDate.year}-${model.endDate.month}-${model.endDate.day}',
+                                    style: kCaptionStyle))
+                          ],
+                        )
+                      : EmptyBox,
+                  _MySalesView(
+                    model: model,
+                  )
                 ],
               ),
             ),
           ),
+          floatingActionButton: _FABWidget(
+            onTapped: () => model.navigateToAddBusiness(),
+          ),
         ),
       ),
       viewModelBuilder: () => HomeViewModel(),
-    );
-  }
-
-  Row _buildTiles(HomeViewModel model) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Expanded(
-            child: TileWidget(
-          subHeader: 'my_business',
-          primaryColor: Colors.red,
-          onTap: () {},
-          icon: LineIcons.businessTime,
-          header: EmptyBox,
-          isDark: model.isDark(),
-        )),
-        const XMargin(18),
-        Expanded(
-            child: TileWidget(
-          subHeader: 'my_contracts',
-          primaryColor: Colors.blue,
-          onTap: () {},
-          icon: LineIcons.fileContract,
-          header: EmptyBox,
-          isDark: model.isDark(),
-        ))
-      ],
     );
   }
 
@@ -101,6 +123,181 @@ class HomeView extends StatelessWidget {
                 ),
             openBuilder: (_, close) => UserAccountView())
       ],
+    );
+  }
+}
+
+class _FABWidget extends StatelessWidget {
+  final VoidCallback onTapped;
+
+  const _FABWidget({
+    Key key,
+    @required this.onTapped,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialButton(
+      onPressed: onTapped,
+      shape: RoundedRectangleBorder(borderRadius: kBorderLarge),
+      clipBehavior: Clip.antiAlias,
+      color: kcPrimaryColor,
+      child: Text(
+        'Add a sale',
+        style:
+            kBodyStyle.copyWith(fontWeight: FontWeight.bold, color: kAltWhite),
+      ),
+    );
+  }
+}
+
+class _MySalesView extends StatelessWidget {
+  final HomeViewModel model;
+
+  const _MySalesView({Key key, this.model}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        verticalSpaceMedium,
+        _buildSales(model),
+        verticalSpaceMedium,
+      ],
+    );
+  }
+
+  Widget _getDateSearchInput(BuildContext context, HomeViewModel model) {
+    return Material(
+      shape: RoundedRectangleBorder(borderRadius: kBorderMedium),
+      clipBehavior: Clip.antiAlias,
+      elevation: 2,
+      child: Form(
+        key: model.formKey,
+        child: Padding(
+          padding: fieldPadding,
+          child: Column(
+            children: [
+              ///start date input
+              verticalSpaceSmall,
+              InkWell(
+                onTap: () {
+                  DeviceUtils.hideKeyboard(context);
+                  DatePicker.showDatePicker(context,
+                      showTitleActions: true,
+                      minTime: DateTime(2020, 1, 1),
+                      maxTime: DateTime(3000, 1, 1), onConfirm: (date) {
+                    model.setStartDate(date);
+                  });
+                },
+                child: AppTextField(
+                  prefixIcon: Icon(
+                    LineIcons.calendar,
+                  ),
+                  validator: (value) {
+                    if (value.isNotEmpty) {
+                      return null;
+                    } else if (value.isEmpty) {
+                      return 'Start date can not be empty';
+                    }
+                  },
+                  controller: model.startDateController,
+                  hintText: "Start date",
+                  isEnabled: false,
+                ),
+              ),
+              verticalSpaceSmall,
+
+              ///end date input
+              InkWell(
+                onTap: () {
+                  FocusScope.of(context).requestFocus(new FocusNode());
+                  if (model.formKey.currentState.validate()) {
+                    DatePicker.showDatePicker(context,
+                        showTitleActions: true,
+                        minTime: model.startDate.add(const Duration(days: 1)),
+                        maxTime: DateTime(3000, 1, 1), onConfirm: (date) {
+                      model.setEndDate(date);
+                    });
+                  }
+                },
+                child: AppTextField(
+                  prefixIcon: Icon(
+                    LineIcons.calendar,
+                  ),
+                  controller: model.endDateController,
+                  hintText: 'End date',
+                  isEnabled: false,
+                  validator: (value) {
+                    // if (model.startDateController.text.isNotEmpty &&
+                    //     value.isEmpty) {
+                    //   return 'We need an end date here';
+                    // }
+                  },
+                ),
+              ),
+              verticalSpaceSmall,
+              ActionChip(
+                  backgroundColor: kcPrimaryColor,
+                  label: Padding(
+                    padding: fieldPadding,
+                    child: Text(
+                      'Search',
+                      style: kBodyStyle.copyWith(color: kAltWhite),
+                    ),
+                  ),
+                  onPressed: () {
+                    if (model.formKey.currentState.validate()) {
+                      model.filterSales();
+                    }
+                  }),
+              verticalSpaceSmall,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSales(HomeViewModel model) {
+    return StreamBuilder(
+      stream: model.streamMySales(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        List<Sale> s = snapshot.data ?? [];
+        if (model.startDate != null && model.endDate != null) {
+          model.saleResult.clear();
+          s.forEach((element) {
+            if (element.createdAt.toDate().isAfter(model.startDate) &&
+                element.createdAt.toDate().isBefore(model.endDate)) {
+              model.saleResult.add(element);
+            }
+          });
+        } else {
+          model.saleResult.clear();
+          model.saleResult.addAll(s);
+        }
+        if (model.saleResult.isNotEmpty) {
+          model.saleResult.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return ListView.separated(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: model.saleResult.length,
+            itemBuilder: (_, index) =>
+                SaleItemView(sale: model.saleResult[index]),
+            separatorBuilder: (_, index) => verticalSpaceSmall,
+          );
+        } else {
+          return AppInfoWidget(
+              translateKey: 'No result found',
+              iconData: LineIcons.search,
+              isDark: model.isDark());
+        }
+      },
     );
   }
 }

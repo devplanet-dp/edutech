@@ -1,3 +1,4 @@
+import 'package:edutech/services/cloud_storage_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:edutech/services/auth_service.dart';
 import 'package:edutech/services/image_selector.dart';
@@ -14,6 +15,7 @@ void setupLocator() {
   locator.registerLazySingleton(() => DialogService());
   locator.registerLazySingleton(() => AuthenticationService());
   locator.registerLazySingleton(() => FirebaseAuthenticationService());
+  locator.registerLazySingleton(() => CloudStorageService());
   locator.registerLazySingleton(() => FirestoreService());
   locator.registerLazySingleton(() => ImageSelector());
   locator.registerLazySingleton(() => ThemeService.getInstance());

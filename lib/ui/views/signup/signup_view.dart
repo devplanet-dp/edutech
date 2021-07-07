@@ -25,6 +25,11 @@ class SignUpView extends StatelessWidget {
     return ViewModelBuilder<SignUpViewModel>.reactive(
       builder: (context, model, child) => Scaffold(
         backgroundColor: kBgDark,
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: kAltWhite),
+          automaticallyImplyLeading: true,
+          backgroundColor: Colors.transparent,
+        ),
         body: Stack(
           fit: StackFit.expand,
           children: [
@@ -39,13 +44,13 @@ class SignUpView extends StatelessWidget {
                   padding: fieldPadding,
                   shrinkWrap: true,
                   children: [
-                    verticalSpaceMassive,
+                    verticalSpaceSmall,
                     Text(
                       'Sign up',
                       style: kHeading3Style.copyWith(color: kcAccent),
                     ),
                     Text(
-                      'to enjoy the Intentions Experience',
+                      'with Verzeo EduTech',
                       style: kSubheadingStyle.copyWith(color: kcAccent),
                     ),
                     verticalSpaceMedium,
@@ -60,14 +65,14 @@ class SignUpView extends StatelessWidget {
                     _buildConfirmPasswordInput(
                         onSuffixTapped: model.toggleObscure,
                         isObscure: model.isObscure),
-                    verticalSpaceSmall,
-                    _buildPrivacyButton(context, () {
-                      model.navigateToTerms();
-                    }),
+                    // verticalSpaceSmall,
+                    // _buildPrivacyButton(context, () {
+                    //   model.navigateToTerms();
+                    // }),
                     verticalSpaceMedium,
                     BoxButtonWidget(
                       buttonText: 'Next',
-                      textColor: kcPrimaryColor,
+                      textColor: kAltWhite,
                       buttonColor: kcAccent,
                       onPressed: () {
                         if (formKey.currentState.validate()) {
@@ -86,7 +91,6 @@ class SignUpView extends StatelessWidget {
                 ),
               ),
             ),
-            FrostedAppBar(),
           ],
         ),
       ),

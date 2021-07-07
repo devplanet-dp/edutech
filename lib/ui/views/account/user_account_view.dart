@@ -25,7 +25,7 @@ class UserAccountView extends StatelessWidget {
       onModelReady: (model) {
         UserModel u = model.currentUser;
         _nameController.text = u.name;
-        model.updateFields(_nameController );
+        model.updateFields(_nameController);
       },
       builder: (context, model, child) => Scaffold(
         body: GestureDetector(
@@ -35,18 +35,16 @@ class UserAccountView extends StatelessWidget {
             child: CustomScrollView(
               slivers: [
                 CustomSliverAppBar(
-                    title: 'account_update', isDark: model.isDark()),
+                    title: 'Account update', isDark: model.isDark()),
                 SliverPadding(
                   padding: fieldPadding,
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
-                      Text('update_account'),
+                      Text('Update your account'),
                       verticalSpaceMedium,
                       _buildProfilePictureUpload(model),
                       verticalSpaceMedium,
                       _buildNameInput(model.isDark()),
-                      verticalSpaceSmall,
-                      _buildAboutMeInput(model.isDark()),
                       verticalSpaceSmall,
                       BoxButtonWidget(
                         buttonText: 'update',

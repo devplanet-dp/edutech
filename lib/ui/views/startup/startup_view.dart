@@ -1,4 +1,5 @@
 import 'package:edutech/constants/app_assets.dart';
+import 'package:edutech/ui/shared/app_colors.dart';
 import 'package:edutech/ui/widgets/busy_overlay.dart';
 import 'package:edutech/viewmodel/startup/startup_view_model.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,7 @@ class _StartupViewState extends State<StartupView>
       builder: (context, model, child) => BusyOverlay(
         show: model.busy,
         child: Scaffold(
+          backgroundColor: kBgDark,
           body: Stack(
             children: [
               Center(

@@ -27,6 +27,7 @@ class UserAccountViewModel extends BaseModel {
   File get selectedImage => _selectedImage;
 
   bool get uploaded => _isUploaded;
+
   void updateFields(TextEditingController nameController){
     nameController.text = currentUser.name;
     notifyListeners();

@@ -51,7 +51,7 @@ class BoxButtonWidget extends StatelessWidget {
               child: isLoading
                   ? CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(kAltBg))
+                      valueColor: AlwaysStoppedAnimation<Color>(kcAccent))
                   : Text(
                       buttonText.toUpperCase(),
                       style: Theme.of(context).textTheme.button.copyWith(

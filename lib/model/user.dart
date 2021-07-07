@@ -24,7 +24,7 @@ class UserModel {
     email = json['email'];
     profileUrl = json['profileUrl'];
     userId = json['userId'];
-    isAdmin = json['isAdmin'];
+    isAdmin = json['isAdmin']??false;
     isActive = json['isActive'];
     createdDate = json['createdDate'];
   }

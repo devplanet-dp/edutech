@@ -14,12 +14,8 @@ class StartupViewModel extends BaseModel {
   final DialogService _dialogService = locator<DialogService>();
 
   Future handleStartUpLogic() async {
-    var result = await _firestoreService.getAppConfig();
     var hasLoggedInUser = await _authenticationService.isUserLoggedIn();
 
-    if (result is String) {
-      _dialogService.showDialog(title: 'Oops', description: result.toString());
-    }
 
     if (hasLoggedInUser && currentUser != null) {
       if (currentUser.isAdmin) {

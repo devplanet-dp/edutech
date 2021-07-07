@@ -120,13 +120,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.3"
-  date_time_picker:
-    dependency: "direct main"
-    description:
-      name: date_time_picker
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   expandable:
     dependency: "direct main"
     description:
@@ -381,7 +374,7 @@ packages:
     source: hosted
     version: "2.1.0"
   intl:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: intl
       url: "https://pub.dartlang.org"

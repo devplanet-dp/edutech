@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ThemeBuilder(
-        defaultThemeMode: ThemeMode.dark,
+        defaultThemeMode: ThemeMode.light,
         darkTheme: themeDataDark,
         lightTheme: themeData,
         builder: (context, regularTheme, darkTheme, themeMode) => MaterialApp(

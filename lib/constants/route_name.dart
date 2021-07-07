@@ -12,3 +12,4 @@ const String UserAccountViewRoute = "UserAccountViewRoute";
 const String SettingsViewRoute = "SettingsView";
 const String ChangePwdViewRoute = "ChangePwdView";
 const String ForgotPwdRoute = "ForgotPwdView";
+const String AddSaleViewRoute = "AddSaleView";

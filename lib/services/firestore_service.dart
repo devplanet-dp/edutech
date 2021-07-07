@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:edutech/model/config.dart';
+import 'package:edutech/model/sale.dart';
 import 'package:edutech/model/user.dart';
+import 'package:edutech/services/auth_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,24 +13,13 @@ import 'package:path/path.dart' as Path;
 
 class FirestoreService {
   final CollectionReference _usersCollectionReference =
-      FirebaseFirestore.instance.collection('users');
+  FirebaseFirestore.instance.collection('users');
 
-  final CollectionReference _postsCollectionReference =
-      FirebaseFirestore.instance.collection('posts');
-
-  final CollectionReference _chatCollectionReference =
-      FirebaseFirestore.instance.collection('rooms');
-  final CollectionReference _configCollectionReference =
-      FirebaseFirestore.instance.collection('config');
-
-  final CollectionReference _jobCollectionReference =
-      FirebaseFirestore.instance.collection('job');
-
-  final CollectionReference _businessCollectionReference =
-      FirebaseFirestore.instance.collection(TB_BUSINESS);
+  final CollectionReference _saleCollectionReference =
+  FirebaseFirestore.instance.collection(TB_SALE);
 
   final StreamController<List<UserModel>> _userController =
-      StreamController<List<UserModel>>.broadcast();
+  StreamController<List<UserModel>>.broadcast();
 
   // #6: Create a list that will keep the paged results
   List<List<UserModel>> _allPagedResults = [];
@@ -41,20 +33,7 @@ class FirestoreService {
 
   Config get config => _config;
 
-  static const TB_POST = 'posts';
-  static const TB_USERS = 'users';
-  static const TB_PURCHASE = 'purchase';
-  static const TB_COMMENT = 'comment';
-  static const TB_REPLY = 'reply';
-  static const TB_LIKE = 'like';
-  static const TB_UNLIKE = 'unlike';
-  static const TB_MEMBER = 'member';
-  static const TB_RATTINGS = 'ratting';
-  static const TB_NOTIFICATION = 'notifications';
-  static const TB_BUSINESS = 'business';
-  static const TB_CONTRACTS = 'contracts';
-  static const TB_INVESTOR = 'investor';
-  static const TB_JOB = 'job';
+  static const TB_SALE = 'sale';
 
   FirebaseFirestore _firestore;
 
@@ -67,20 +46,6 @@ class FirestoreService {
       await _usersCollectionReference
           .doc(user.userId)
           .set(user.toJson(), SetOptions(merge: true));
-      return true;
-    } catch (e) {
-      if (e is PlatformException) {
-        return e.message;
-      }
-
-      return e.toString();
-    }
-  }
-
-  Future getAppConfig() async {
-    try {
-      var querySnap = await _configCollectionReference.get();
-      _config = Config.fromMap(querySnap.docs[0].data());
       return true;
     } catch (e) {
       if (e is PlatformException) {
@@ -107,7 +72,6 @@ class FirestoreService {
   }
 
 
-
   Stream listenToUserslTime(String searchKey) {
     // Register the handler for when the posts data changes
     _requestMoreUsers(searchKey);
@@ -119,7 +83,7 @@ class FirestoreService {
     // #2: split the query from the actual subscription
     var pagePostsQuery = _usersCollectionReference
         .orderBy('createdDate', descending: true)
-        // #3: Limit the amount of results
+    // #3: Limit the amount of results
         .limit(UserLimit);
     // #5: If we have a document start the query after it
     if (_lastDocument != null) {
@@ -170,7 +134,6 @@ class FirestoreService {
   void requestMoreUsers(searchKey) => _requestMoreUsers(searchKey);
 
 
-
   Future updateUserAboutMe(
       {String uid, String aboutMe, String favCharacter}) async {
     try {
@@ -188,19 +151,18 @@ class FirestoreService {
   }
 
 
-
   Stream<List<UserModel>> searchUsers(
       {int limit = 10, String searchKey, @required currentUid}) {
     Stream<QuerySnapshot> snap = searchKey.isNotEmpty
         ? _usersCollectionReference
-            .where('name', isGreaterThanOrEqualTo: searchKey)
-            .where('name', isLessThan: searchKey + 'z')
-            .limit(limit)
-            .snapshots()
+        .where('name', isGreaterThanOrEqualTo: searchKey)
+        .where('name', isLessThan: searchKey + 'z')
+        .limit(limit)
+        .snapshots()
         : _usersCollectionReference
-            .where('userId', isNotEqualTo: currentUid)
-            .limit(limit)
-            .snapshots();
+        .where('userId', isNotEqualTo: currentUid)
+        .limit(limit)
+        .snapshots();
 
     return snap.map((snapshot) =>
         snapshot.docs.map((doc) => UserModel.fromSnapshot(doc)).toList());
@@ -210,12 +172,12 @@ class FirestoreService {
       {String searchKey, @required currentUid}) {
     Stream<QuerySnapshot> snap = searchKey.isNotEmpty
         ? _usersCollectionReference
-            .where('name', isGreaterThanOrEqualTo: searchKey)
-            .where('name', isLessThan: searchKey + 'z')
-            .snapshots()
+        .where('name', isGreaterThanOrEqualTo: searchKey)
+        .where('name', isLessThan: searchKey + 'z')
+        .snapshots()
         : _usersCollectionReference
-            .where('userId', isNotEqualTo: currentUid)
-            .snapshots();
+        .where('userId', isNotEqualTo: currentUid)
+        .snapshots();
 
     return snap.map((snapshot) =>
         snapshot.docs.map((doc) => UserModel.fromSnapshot(doc)).toList());
@@ -231,15 +193,13 @@ class FirestoreService {
   }
 
 
-
-  Future updateUserData(
-      {String uid,
-      String profileUri,
-      String userName,
-      String name,
-      String aboutMe,
-      String favCharacter,
-      Timestamp birthDay}) async {
+  Future updateUserData({String uid,
+    String profileUri,
+    String userName,
+    String name,
+    String aboutMe,
+    String favCharacter,
+    Timestamp birthDay}) async {
     try {
       await _usersCollectionReference.doc(uid).update({
         'profileUrl': profileUri,
@@ -255,7 +215,6 @@ class FirestoreService {
       return e.toString();
     }
   }
-
 
 
   Future getUser(String uid) async {
@@ -280,7 +239,9 @@ class FirestoreService {
     QuerySnapshot snap = await _usersCollectionReference
         .where('userName', isEqualTo: userName)
         .get();
-    return snap.docs.map((doc) => UserModel.fromSnapshot(doc)).first;
+    return snap.docs
+        .map((doc) => UserModel.fromSnapshot(doc))
+        .first;
   }
 
   Future<List<UserModel>> getSuperAdmins() async {
@@ -305,80 +266,82 @@ class FirestoreService {
   }
 
 
-  ///business
-  // Future<FirebaseResult> addBusiness(BusinessModel business) async {
-  //   try {
-  //     await _businessCollectionReference
-  //         .doc(business.id)
-  //         .set(business.toJson(), SetOptions(merge: true));
-  //     return FirebaseResult(data: business);
-  //   } catch (e) {
-  //     if (e is PlatformException) {
-  //       return FirebaseResult.error(errorMessage: e.message);
-  //     }
-  //
-  //     return FirebaseResult.error(errorMessage: e.toString());
-  //   }
-  // }
-  //
-  // Future<FirebaseResult> removeBusiness(BusinessModel business) async {
-  //   try {
-  //     if (business.images != null && business.images.isNotEmpty) {
-  //       try {
-  //         var fileUrl = Uri.decodeFull(Path.basename(business.images))
-  //             .replaceAll(new RegExp(r'(\?alt).*'), '');
-  //
-  //         await FirebaseStorage.instance.ref().child(fileUrl).delete();
-  //       } catch (e) {
-  //         return FirebaseResult.error(errorMessage: e.message);
-  //       }
-  //     }
-  //     await _businessCollectionReference.doc(business.id).delete();
-  //     return FirebaseResult(data: true);
-  //   } catch (e) {
-  //     if (e is PlatformException) {
-  //       return FirebaseResult.error(errorMessage: e.message);
-  //     }
-  //
-  //     return FirebaseResult.error(errorMessage: e.toString());
-  //   }
-  // }
-  //
-  // Stream<List<BusinessModel>> streamMyBusiness(String uid) {
-  //   Stream<QuerySnapshot> snap = _businessCollectionReference
-  //       .where('user_id', isEqualTo: uid)
-  //       .orderBy('created_at', descending: true)
-  //       .snapshots();
-  //
-  //   return snap.map((snapshot) => snapshot.docs
-  //       .map((doc) => BusinessModel.fromJson(doc.data()))
-  //       .toList());
-  // }
-  //
-  // Stream<List<BusinessModel>> streamRecentBusiness({int limit = 5}) {
-  //   Stream<QuerySnapshot> snap =
-  //       _businessCollectionReference.limit(limit).snapshots();
-  //
-  //   return snap.map((snapshot) => snapshot.docs
-  //       .map((doc) => BusinessModel.fromJson(doc.data()))
-  //       .toList());
-  // }
-  //
-  // Stream<List<BusinessModel>> searchBusiness(
-  //     {int limit = 100, @required String searchKey}) {
-  //   // Register the handler for when the posts data changes
-  //   Stream<QuerySnapshot> snap = searchKey.isNotEmpty
-  //       ? _firestore
-  //           .collection(TB_BUSINESS)
-  //           .where('title', isGreaterThanOrEqualTo: searchKey)
-  //           .where('title', isLessThan: searchKey + 'z')
-  //           .limit(limit)
-  //           .snapshots()
-  //       : _businessCollectionReference.limit(limit).snapshots();
-  //
-  //   return snap.map((snapshot) =>
-  //       snapshot.docs.map((doc) => BusinessModel.fromSnapshot(doc)).toList());
-  // }
+
+  Future<FirebaseResult> addSale(Sale sale) async {
+    try {
+      await _saleCollectionReference
+          .doc(sale.id)
+          .set(sale.toJson(), SetOptions(merge: true));
+      return FirebaseResult(data: sale);
+    } catch (e) {
+      if (e is PlatformException) {
+        return FirebaseResult.error(errorMessage: e.message);
+      }
+
+      return FirebaseResult.error(errorMessage: e.toString());
+    }
+  }
+
+  Future<FirebaseResult> removeSale(Sale sale) async {
+    try {
+      if (sale.paymentProof != null && sale.paymentProof.isNotEmpty) {
+        try {
+          var fileUrl = Uri.decodeFull(Path.basename(sale.paymentProof))
+              .replaceAll(new RegExp(r'(\?alt).*'), '');
+
+          await FirebaseStorage.instance.ref().child(fileUrl).delete();
+        } catch (e) {
+          return FirebaseResult.error(errorMessage: e.message);
+        }
+      }
+      await _saleCollectionReference.doc(sale.id).delete();
+      return FirebaseResult(data: true);
+    } catch (e) {
+      if (e is PlatformException) {
+        return FirebaseResult.error(errorMessage: e.message);
+      }
+
+      return FirebaseResult.error(errorMessage: e.toString());
+    }
+  }
+
+  Stream<List<Sale>> streamMySales(String uid) {
+    Stream<QuerySnapshot> snap = _saleCollectionReference
+        .where('user_id', isEqualTo: uid)
+        .orderBy('created_at', descending: true)
+        .snapshots();
+
+    return snap.map((snapshot) =>
+        snapshot.docs
+            .map((doc) => Sale.fromJson(doc.data()))
+            .toList());
+  }
+
+  Stream<List<Sale>> streamSales() {
+    Stream<QuerySnapshot> snap =
+    _saleCollectionReference.snapshots();
+
+    return snap.map((snapshot) =>
+        snapshot.docs
+            .map((doc) => Sale.fromJson(doc.data()))
+            .toList());
+  }
+
+  Stream<List<Sale>> search(
+      {int limit = 100, @required String searchKey}) {
+    // Register the handler for when the posts data changes
+    Stream<QuerySnapshot> snap = searchKey.isNotEmpty
+        ? _firestore
+        .collection(TB_SALE)
+        .where('title', isGreaterThanOrEqualTo: searchKey)
+        .where('title', isLessThan: searchKey + 'z')
+        .limit(limit)
+        .snapshots()
+        : _saleCollectionReference.limit(limit).snapshots();
+
+    return snap.map((snapshot) =>
+        snapshot.docs.map((doc) => Sale.fromSnapshot(doc)).toList());
+  }
 
 
 }

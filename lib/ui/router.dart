@@ -1,11 +1,13 @@
 import 'package:edutech/constants/route_name.dart';
 import 'package:edutech/ui/views/account/user_account_view.dart';
+import 'package:edutech/ui/views/changePwd/change_pwd_view.dart';
 import 'package:edutech/ui/views/complete/signup_complete_view.dart';
 import 'package:edutech/ui/views/forgot_password/forgot_view.dart';
 import 'package:edutech/ui/views/forgot_password/reset_password_view.dart';
 import 'package:edutech/ui/views/home/home_view.dart';
 import 'package:edutech/ui/views/login/login_view.dart';
 import 'package:edutech/ui/views/profile/profile_view.dart';
+import 'package:edutech/ui/views/sales/add_sale_view.dart';
 import 'package:edutech/ui/views/signup/signup_view.dart';
 import 'package:flutter/material.dart';
 
@@ -42,21 +44,30 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         routeName: settings.name,
         viewToShow: ForgotView(),
       );
-    case ResetPasswordRoute:
+    case ChangePwdViewRoute:
       var email = settings.arguments as String;
       return _getPageRoute(
         routeName: settings.name,
-        viewToShow: ResetPasswordView(
-          email: email,
+        viewToShow: ChangePasswordView(
         ),
       );
-   
+    case AddSaleViewRoute:
+      return _getPageRoute(
+        routeName: settings.name,
+        viewToShow: AddSaleView(),
+      );
+
     case UserAccountViewRoute:
       return _getPageRoute(
         routeName: settings.name,
         viewToShow: UserAccountView(),
       );
-      
+
+    case ForgotPwdRoute:
+      return _getPageRoute(
+        routeName: settings.name,
+        viewToShow: ForgotView(),
+      );
 
     default:
       return MaterialPageRoute(
