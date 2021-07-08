@@ -47,7 +47,7 @@ class SalesmenView extends StatelessWidget {
                 ),
                 verticalSpaceMedium,
                 SearchUserResult(
-                  searchStream: model.searchUsers(),
+                  model: model,
                 )
               ]))
             ],
@@ -60,18 +60,17 @@ class SalesmenView extends StatelessWidget {
 }
 
 class SearchUserResult extends StatelessWidget {
-  final Stream<List<UserModel>> searchStream;
-  final Stream<List<Sale>> saleStream;
+  final SalesmenViewModel model;
 
   const SearchUserResult({
     Key key,
-    @required this.searchStream,@required this.saleStream,
+    @required this.model,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<UserModel>>(
-        stream: searchStream,
+        stream: model.searchUsers(),
         builder: (_, snapshot) {
           if (snapshot.hasData) {
             List<UserModel> users = snapshot.data;
@@ -89,7 +88,11 @@ class SearchUserResult extends StatelessWidget {
                   physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (_, index) {
                     return ListTile(
-                      onTap: () {},
+                      trailing: Icon(Icons.chevron_right_rounded),
+                      onTap: ()=>model.navigateToSaleStatView(users[index]),
+                      isThreeLine: true,
+                      subtitle: _buildSaleCount(
+                          model.userSaleStream(users[index].userId)),
                       title: Text(
                         users[index].name,
                         maxLines: 2,
@@ -107,4 +110,10 @@ class SearchUserResult extends StatelessWidget {
           }
         });
   }
+
+  Widget _buildSaleCount(Stream saleStream) => StreamBuilder<List<Sale>>(
+      stream: saleStream,
+      builder: (_, snapshot) => Text(
+            'Sales: ${snapshot.data?.length ?? 0}',
+          ));
 }

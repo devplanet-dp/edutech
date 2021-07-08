@@ -15,3 +15,4 @@ const String ForgotPwdRoute = "ForgotPwdView";
 const String AddSaleViewRoute = "AddSaleView";
 const String DashboardViewRoute = "DashboardView";
 const String SalesmenViewRoute = "SalesmenView";
+const String SaleStatViewRoute = "SalesStatView";

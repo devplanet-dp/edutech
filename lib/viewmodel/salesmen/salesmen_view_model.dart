@@ -34,6 +34,9 @@ class SalesmenViewModel extends BaseModel {
   void navigateToSalesmenView() =>
       _navigationService.navigateTo(SalesmenViewRoute);
 
+  void navigateToSaleStatView(UserModel user) =>
+      _navigationService.navigateTo(SaleStatViewRoute, arguments: user);
+
   @override
   void dispose() {
     searchController.dispose();

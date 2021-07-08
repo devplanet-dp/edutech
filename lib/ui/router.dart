@@ -1,4 +1,5 @@
 import 'package:edutech/constants/route_name.dart';
+import 'package:edutech/model/user.dart';
 import 'package:edutech/ui/views/account/user_account_view.dart';
 import 'package:edutech/ui/views/changePwd/change_pwd_view.dart';
 import 'package:edutech/ui/views/complete/signup_complete_view.dart';
@@ -8,6 +9,7 @@ import 'package:edutech/ui/views/home/home_view.dart';
 import 'package:edutech/ui/views/login/login_view.dart';
 import 'package:edutech/ui/views/profile/profile_view.dart';
 import 'package:edutech/ui/views/sales/add_sale_view.dart';
+import 'package:edutech/ui/views/salesmen/sale_stat_view.dart';
 import 'package:edutech/ui/views/salesmen/salesmen_view.dart';
 import 'package:edutech/ui/views/signup/signup_view.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +79,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return _getPageRoute(
         routeName: settings.name,
         viewToShow: SalesmenView(),
+      );
+    case SaleStatViewRoute:
+      var user = settings.arguments as UserModel;
+      return _getPageRoute(
+        routeName: settings.name,
+        viewToShow: SaleStatView(salesmen: user),
       );
 
     default:
