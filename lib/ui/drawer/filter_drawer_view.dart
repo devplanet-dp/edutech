@@ -12,14 +12,27 @@ import 'package:stacked/stacked.dart';
 class FilterDrawerView extends StatelessWidget {
   final Function(DateTime startDate, DateTime endDate) onSearchClicked;
   final VoidCallback onClearTapped;
+  final DateTime startDate;
+  final DateTime endDate;
 
   const FilterDrawerView(
-      {Key key, @required this.onSearchClicked, @required this.onClearTapped})
+      {Key key,
+      @required this.onSearchClicked,
+      @required this.onClearTapped,
+      this.startDate,
+      this.endDate})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<FilterDrawerViewModel>.reactive(
+      disposeViewModel: false,
+      onModelReady: (model) {
+        if (startDate != null && endDate != null) {
+          model.setStartDate(startDate);
+          model.setEndDate(endDate);
+        }
+      },
       builder: (context, model, child) => Container(
         decoration: BoxDecoration(
             color: Colors.white,

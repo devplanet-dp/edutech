@@ -20,7 +20,7 @@ class StartupViewModel extends BaseModel {
     if (hasLoggedInUser && currentUser != null) {
       if (currentUser.isAdmin) {
         _navigationService.replaceWith(
-          HomeViewRoute,
+          DashboardViewRoute,
         );
       } else {
         _navigationService.replaceWith(

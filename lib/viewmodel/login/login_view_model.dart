@@ -1,8 +1,6 @@
 import 'package:edutech/constants/route_name.dart';
-import 'package:edutech/model/user.dart';
 import 'package:edutech/services/auth_service.dart';
 import 'package:edutech/services/firestore_service.dart';
-import 'package:edutech/ui/shared/bottom_sheet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked_firebase_auth/stacked_firebase_auth.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -14,7 +12,7 @@ class LoginViewModel extends BaseModel {
   final _authenticationService = locator<AuthenticationService>();
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
-  final _firestoreService = locator<FirestoreService>();
+
   final firebaseAuthenticationService =
       locator<FirebaseAuthenticationService>();
   final _bottomSheetService = locator<BottomSheetService>();
@@ -66,8 +64,6 @@ class LoginViewModel extends BaseModel {
     setBusy(false);
   }
 
-
-
   void _handleAuthentications(FirebaseAuthenticationResult result) async {
     if (!result.hasError) {
       setBusy(true);
@@ -87,17 +83,14 @@ class LoginViewModel extends BaseModel {
   }
 
   void navigateToHome() async {
-    var isAdmin = currentUser.isAdmin
-    ;
-    if (isAdmin == null) {
-      _navigationService.replaceWith(WelcomeViewRoute, arguments: true);
-    } else if (!isAdmin) {
+    var isAdmin = currentUser.isAdmin;
+
+   if (!isAdmin) {
       _navigationService.replaceWith(HomeViewRoute);
     } else {
-      _navigationService.replaceWith(HomeViewRoute);
+      _navigationService.replaceWith(DashboardViewRoute);
     }
   }
-
 
   void navigateToSignUp() async {
     await _navigationService.navigateTo(SignUpViewRoute);
@@ -106,5 +99,4 @@ class LoginViewModel extends BaseModel {
   void navigateToForgotPassword() async {
     await _navigationService.navigateTo(ForgotPwdRoute);
   }
-
 }

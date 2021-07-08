@@ -51,7 +51,7 @@ class SaleItemView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AutoSizeText(
-                  sale.collegeName,
+                  sale.yearStudy,
                   maxLines: 1,
                 ),
                 AutoSizeText(

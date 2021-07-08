@@ -57,7 +57,7 @@ class Sale {
 
   Sale(
       {this.id,
-        this.userId,
+      this.userId,
       this.createdAt,
       this.studentName,
       this.email,
@@ -71,6 +71,8 @@ class Sale {
       this.amountPaid,
       this.courseFee,
       this.paymentProof});
+
+  bool get isPaymentCompleted => amountPaid == courseFee;
 
   Sale.fromJson(Map<String, dynamic> json) {
     id = json['id'];

@@ -235,23 +235,6 @@ class FirestoreService {
     return UserModel.fromSnapshot(userData);
   }
 
-  Future<UserModel> getUserByUserName(String userName) async {
-    QuerySnapshot snap = await _usersCollectionReference
-        .where('userName', isEqualTo: userName)
-        .get();
-    return snap.docs
-        .map((doc) => UserModel.fromSnapshot(doc))
-        .first;
-  }
-
-  Future<List<UserModel>> getSuperAdmins() async {
-    QuerySnapshot snap = await _usersCollectionReference
-        .where('isSuperAdmin', isEqualTo: true)
-        .get();
-
-    return snap.docs.map((doc) => UserModel.fromSnapshot(doc)).toList();
-  }
-
   Future<List<UserModel>> getAllUsers() async {
     QuerySnapshot snap = await _usersCollectionReference
         .where('isSuperAdmin', isEqualTo: false)

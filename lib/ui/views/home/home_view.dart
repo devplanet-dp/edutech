@@ -34,6 +34,8 @@ class HomeView extends StatelessWidget {
           appBar: _buildAppBar(context, model),
           drawer: DrawerView(),
           endDrawer: FilterDrawerView(
+            startDate: model.startDate,
+            endDate: model.endDate,
             onSearchClicked: (DateTime startDate, DateTime endDate) {
               model.setStartDate(startDate);
               model.setEndDate(endDate);
@@ -272,8 +274,11 @@ class _MySalesView extends StatelessWidget {
         if (model.startDate != null && model.endDate != null) {
           model.saleResult.clear();
           s.forEach((element) {
-            if (element.createdAt.toDate().isAfter(model.startDate) &&
-                element.createdAt.toDate().isBefore(model.endDate)) {
+            if (element.createdAt.toDate().isAfter(
+                    model.startDate.subtract(const Duration(days: 1))) &&
+                element.createdAt
+                    .toDate()
+                    .isBefore(model.endDate.add(const Duration(days: 1)))) {
               model.saleResult.add(element);
             }
           });
@@ -293,7 +298,7 @@ class _MySalesView extends StatelessWidget {
           );
         } else {
           return AppInfoWidget(
-              translateKey: 'No result found',
+              translateKey: 'No sales found',
               iconData: LineIcons.search,
               isDark: model.isDark());
         }
