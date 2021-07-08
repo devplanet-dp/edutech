@@ -12,11 +12,69 @@ class SalesmenViewModel extends BaseModel {
   final _navigationService = locator<NavigationService>();
   final _firestoreService = locator<FirestoreService>();
 
+
+  List<Sale> _saleResult = [];
+
+  List<Sale> get saleResult => _saleResult;
+
+
+  var formKey = GlobalKey<FormState>();
+  final startDateController = TextEditingController();
+  final endDateController = TextEditingController();
+  DateTime _startDate;
+  DateTime _endDate;
+  bool _hasDateFilter;
+
+  bool get hasDateFilter => _hasDateFilter;
+
+  DateTime get startDate => _startDate;
+
+  DateTime get endDate => _endDate;
+
+  void toggleDateFilter(bool value) {
+    _hasDateFilter = value;
+    notifyListeners();
+  }
+
+  void setStartDate(DateTime dateTime) {
+    _startDate = dateTime;
+    startDateController.text =
+    "${dateTime.year} - ${dateTime.month} - ${dateTime.day}";
+    endDateController.text = "";
+    notifyListeners();
+  }
+
+  void clearFilter() {
+    clearStartDate();
+    clearEndDate();
+    toggleDateFilter(false);
+    notifyListeners();
+  }
+  void setEndDate(DateTime dateTime) {
+    _endDate = dateTime;
+    endDateController.text =
+    "${dateTime.year} - ${dateTime.month} - ${dateTime.day}";
+    toggleDateFilter(true);
+    notifyListeners();
+  }
+
+  void clearEndDate() {
+    _endDate = null;
+    endDateController.text = '';
+  }
+
+  void clearStartDate() {
+    _startDate = null;
+    startDateController.text = '';
+  }
+
+
   //text controllers:-----------------------------------------------------------
   final searchController = TextEditingController();
   String _searchKey = '';
 
   bool get isSearch => _searchKey.isNotEmpty;
+
 
   onValueChanged(String value) {
     _searchKey = value;
