@@ -25,11 +25,14 @@ class AddSaleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<AddSaleViewModel>.reactive(
+      onModelReady: (model) {
+        model.getCourses();
+      },
       builder: (context, model, child) => BusyOverlay(
         show: model.busy,
         child: Scaffold(
           body: GestureDetector(
-            onTap: (){
+            onTap: () {
               DeviceUtils.hideKeyboard(context);
             },
             child: Form(
@@ -92,6 +95,15 @@ class AddSaleView extends StatelessWidget {
                       _buildRegOfDateInput(context, model),
                       verticalSpaceSmall,
                       _buildCollegeName(model),
+                      verticalSpaceSmall,
+                      _buildCourseInput(context,model),
+                      Divider(),
+                      Text(
+                        'Program Type:',
+                        style: kBodyStyle,
+                      ),
+                      _buildProgramType(model),
+                      Divider(),
                       Divider(),
                       Text(
                         'Year of Study:',
@@ -111,8 +123,6 @@ class AddSaleView extends StatelessWidget {
                       ),
                       _buildLeadSource(model),
                       Divider(),
-                      verticalSpaceSmall,
-                      _buildPointOfContact(model),
                       verticalSpaceSmall,
                       _buildPaidAmountInput(context, model),
                       verticalSpaceSmall,
@@ -250,10 +260,24 @@ class AddSaleView extends StatelessWidget {
                 selected: model.isRegSelected(RegisterType.values[index]))),
       );
 
+  Widget _buildProgramType(AddSaleViewModel model) => Wrap(
+        spacing: 4,
+        children: List.generate(
+            ProgramType.values.length,
+            (index) => ChoiceChip(
+                label: Text(ProgramType.values[index].toShortString()),
+                onSelected: (selected) {
+                  selected
+                      ? model.setProgType(ProgramType.values[index])
+                      : null;
+                },
+                selected: model.isProgSelected(ProgramType.values[index]))),
+      );
+
   Widget _buildLeadSource(AddSaleViewModel model) => Wrap(
         spacing: 4,
         children: List.generate(
-            RegisterType.values.length,
+            LeadSource.values.length,
             (index) => ChoiceChip(
                 label: Text(LeadSource.values[index].toShortString()),
                 onSelected: (selected) {
@@ -390,6 +414,57 @@ class AddSaleView extends StatelessWidget {
                     model.setCourseFee(COURSE_FEE[index].toString());
                   },
                   child: Text('${formatCurrency.format(COURSE_FEE[index])}'))),
+          cancelButton: CupertinoActionSheetAction(
+            isDefaultAction: true,
+            child: Text('Cancel'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCourseInput(context, AddSaleViewModel model) {
+    return InkWell(
+      onTap: () {
+        DeviceUtils.hideKeyboard(context);
+        _showCourseName(context, model);
+      },
+      child: AppTextField(
+        validator: (value) {
+          if (value.isNotEmpty) {
+            return null;
+          } else if (value.isEmpty) {
+            return 'Course can not be empty';
+          }
+        },
+        isEnabled: false,
+        controller: model.courseNameController,
+        hintText: 'Course name',
+        isMoney: true,
+        isDark: model.isDark(),
+        fillColor: Colors.transparent,
+        borderColor: kcPrimaryColor.withOpacity(0.4),
+      ),
+    );
+  }
+
+  Future<void> _showCourseName(context, AddSaleViewModel model) async {
+    return showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoActionSheet(
+          title: Text('Available courses'),
+          message: Text('Select a course'),
+          actions: List.generate(
+              model.courses?.title?.length,
+              (index) => CupertinoActionSheetAction(
+                  onPressed: () {
+                    model.setCourseName(model.courses?.title[index]);
+                  },
+                  child: Text(model.courses?.title[index]))),
           cancelButton: CupertinoActionSheetAction(
             isDefaultAction: true,
             child: Text('Cancel'),

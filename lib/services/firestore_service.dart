@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:edutech/model/config.dart';
+import 'package:edutech/model/courses.dart';
 import 'package:edutech/model/sale.dart';
 import 'package:edutech/model/user.dart';
 import 'package:edutech/services/auth_service.dart';
@@ -13,13 +13,16 @@ import 'package:path/path.dart' as Path;
 
 class FirestoreService {
   final CollectionReference _usersCollectionReference =
-  FirebaseFirestore.instance.collection('users');
+      FirebaseFirestore.instance.collection('users');
 
   final CollectionReference _saleCollectionReference =
-  FirebaseFirestore.instance.collection(TB_SALE);
+      FirebaseFirestore.instance.collection(TB_SALE);
+
+  final CollectionReference _courseCollectionReference =
+      FirebaseFirestore.instance.collection(TB_COURSES);
 
   final StreamController<List<UserModel>> _userController =
-  StreamController<List<UserModel>>.broadcast();
+      StreamController<List<UserModel>>.broadcast();
 
   // #6: Create a list that will keep the paged results
   List<List<UserModel>> _allPagedResults = [];
@@ -34,6 +37,7 @@ class FirestoreService {
   Config get config => _config;
 
   static const TB_SALE = 'sale';
+  static const TB_COURSES = 'courses';
 
   FirebaseFirestore _firestore;
 
@@ -71,7 +75,6 @@ class FirestoreService {
     }
   }
 
-
   Stream listenToUserslTime(String searchKey) {
     // Register the handler for when the posts data changes
     _requestMoreUsers(searchKey);
@@ -83,7 +86,7 @@ class FirestoreService {
     // #2: split the query from the actual subscription
     var pagePostsQuery = _usersCollectionReference
         .orderBy('createdDate', descending: true)
-    // #3: Limit the amount of results
+        // #3: Limit the amount of results
         .limit(UserLimit);
     // #5: If we have a document start the query after it
     if (_lastDocument != null) {
@@ -133,7 +136,6 @@ class FirestoreService {
 
   void requestMoreUsers(searchKey) => _requestMoreUsers(searchKey);
 
-
   Future updateUserAboutMe(
       {String uid, String aboutMe, String favCharacter}) async {
     try {
@@ -150,19 +152,18 @@ class FirestoreService {
     }
   }
 
-
   Stream<List<UserModel>> searchUsers(
       {int limit = 10, String searchKey, @required currentUid}) {
     Stream<QuerySnapshot> snap = searchKey.isNotEmpty
         ? _usersCollectionReference
-        .where('name', isGreaterThanOrEqualTo: searchKey)
-        .where('name', isLessThan: searchKey + 'z')
-        .limit(limit)
-        .snapshots()
+            .where('name', isGreaterThanOrEqualTo: searchKey)
+            .where('name', isLessThan: searchKey + 'z')
+            .limit(limit)
+            .snapshots()
         : _usersCollectionReference
-        .where('userId', isNotEqualTo: currentUid)
-        .limit(limit)
-        .snapshots();
+            .where('userId', isNotEqualTo: currentUid)
+            .limit(limit)
+            .snapshots();
 
     return snap.map((snapshot) =>
         snapshot.docs.map((doc) => UserModel.fromSnapshot(doc)).toList());
@@ -172,12 +173,12 @@ class FirestoreService {
       {String searchKey, @required currentUid}) {
     Stream<QuerySnapshot> snap = searchKey.isNotEmpty
         ? _usersCollectionReference
-        .where('name', isGreaterThanOrEqualTo: searchKey)
-        .where('name', isLessThan: searchKey + 'z')
-        .snapshots()
+            .where('name', isGreaterThanOrEqualTo: searchKey)
+            .where('name', isLessThan: searchKey + 'z')
+            .snapshots()
         : _usersCollectionReference
-        .where('userId', isNotEqualTo: currentUid)
-        .snapshots();
+            .where('userId', isNotEqualTo: currentUid)
+            .snapshots();
 
     return snap.map((snapshot) =>
         snapshot.docs.map((doc) => UserModel.fromSnapshot(doc)).toList());
@@ -192,14 +193,14 @@ class FirestoreService {
         snapshot.docs.map((doc) => UserModel.fromSnapshot(doc)).toList());
   }
 
-
-  Future updateUserData({String uid,
-    String profileUri,
-    String userName,
-    String name,
-    String aboutMe,
-    String favCharacter,
-    Timestamp birthDay}) async {
+  Future updateUserData(
+      {String uid,
+      String profileUri,
+      String userName,
+      String name,
+      String aboutMe,
+      String favCharacter,
+      Timestamp birthDay}) async {
     try {
       await _usersCollectionReference.doc(uid).update({
         'profileUrl': profileUri,
@@ -215,7 +216,6 @@ class FirestoreService {
       return e.toString();
     }
   }
-
 
   Future getUser(String uid) async {
     try {
@@ -248,7 +248,19 @@ class FirestoreService {
     return snap.map((doc) => UserModel.fromSnapshot(doc));
   }
 
+  Future<FirebaseResult> getAllCourses() async {
+    try {
+      QuerySnapshot snap = await _courseCollectionReference.get();
+      return FirebaseResult(
+          data: snap.docs.map((doc) => Courses.fromSnapshot(doc)).toList()[0]);
+    } catch (e) {
+      if (e is PlatformException) {
+        return FirebaseResult.error(errorMessage: e.message);
+      }
 
+      return FirebaseResult.error(errorMessage: e.toString());
+    }
+  }
 
   Future<FirebaseResult> addSale(Sale sale) async {
     try {
@@ -295,36 +307,30 @@ class FirestoreService {
         .snapshots();
 
     return snap.map((snapshot) =>
-        snapshot.docs
-            .map((doc) => Sale.fromJson(doc.data()))
-            .toList());
+        snapshot.docs.map((doc) => Sale.fromJson(doc.data())).toList());
   }
 
-  Stream<List<Sale>> streamSales() {
-    Stream<QuerySnapshot> snap =
-    _saleCollectionReference.snapshots();
+  Stream<List<Sale>> streamSales({int limit}) {
+    Stream<QuerySnapshot> snap = limit == null
+        ? _saleCollectionReference.snapshots()
+        : _saleCollectionReference.limit(limit).snapshots();
 
     return snap.map((snapshot) =>
-        snapshot.docs
-            .map((doc) => Sale.fromJson(doc.data()))
-            .toList());
+        snapshot.docs.map((doc) => Sale.fromJson(doc.data())).toList());
   }
 
-  Stream<List<Sale>> search(
-      {int limit = 100, @required String searchKey}) {
+  Stream<List<Sale>> search({int limit = 100, @required String searchKey}) {
     // Register the handler for when the posts data changes
     Stream<QuerySnapshot> snap = searchKey.isNotEmpty
         ? _firestore
-        .collection(TB_SALE)
-        .where('title', isGreaterThanOrEqualTo: searchKey)
-        .where('title', isLessThan: searchKey + 'z')
-        .limit(limit)
-        .snapshots()
+            .collection(TB_SALE)
+            .where('title', isGreaterThanOrEqualTo: searchKey)
+            .where('title', isLessThan: searchKey + 'z')
+            .limit(limit)
+            .snapshots()
         : _saleCollectionReference.limit(limit).snapshots();
 
     return snap.map((snapshot) =>
         snapshot.docs.map((doc) => Sale.fromSnapshot(doc)).toList());
   }
-
-
 }

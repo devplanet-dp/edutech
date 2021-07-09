@@ -5,6 +5,7 @@ import 'package:edutech/ui/shared/app_colors.dart';
 import 'package:edutech/ui/shared/shared_styles.dart';
 import 'package:edutech/ui/shared/ui_helpers.dart';
 import 'package:edutech/utils/app_utils.dart';
+import 'package:edutech/utils/margin.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -27,7 +28,7 @@ class SaleSheetView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            verticalSpaceMedium,
+            YMargin(kToolbarHeight),
             Row(
               children: [
                 AutoSizeText(
@@ -67,6 +68,7 @@ class SaleSheetView extends StatelessWidget {
                       value:
                           '${regDate.year} - ${regDate.month} - ${regDate.day}'),
                   FieldItem(title: 'College name', value: s.collegeName),
+                  FieldItem(title: 'Course', value: s.courseName),
                   FieldItem(title: 'Year study', value: s.yearStudy),
                   FieldItem(
                       title: 'Registered for',
@@ -74,7 +76,9 @@ class SaleSheetView extends StatelessWidget {
                   FieldItem(
                       title: 'Lead source',
                       value: s.leadSource.toShortString()),
-                  FieldItem(title: 'Point of contact', value: s.pointContact),
+                  FieldItem(
+                      title: 'Program type',
+                      value: s.programType.toShortString()),
                   FieldItem(
                       title: 'Amount paid',
                       value: formatCurrency.format(s.amountPaid)),

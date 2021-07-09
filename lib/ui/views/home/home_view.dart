@@ -12,11 +12,8 @@ import 'package:edutech/ui/widgets/app_info.dart';
 import 'package:edutech/ui/widgets/app_title_widget.dart';
 import 'package:edutech/ui/widgets/avatar_widget.dart';
 import 'package:edutech/ui/widgets/busy_overlay.dart';
-import 'package:edutech/ui/widgets/text_field_widget.dart';
-import 'package:edutech/utils/device_utils.dart';
 import 'package:edutech/viewmodel/home/home_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:stacked/stacked.dart';
 

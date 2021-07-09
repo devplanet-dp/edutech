@@ -7,6 +7,7 @@ import 'package:edutech/ui/shared/ui_helpers.dart';
 import 'package:edutech/ui/views/sales/sale_item_view.dart';
 import 'package:edutech/ui/widgets/app_info.dart';
 import 'package:edutech/ui/widgets/sliver_app_bar.dart';
+import 'package:edutech/utils/app_utils.dart';
 import 'package:edutech/viewmodel/salesmen/salesmen_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
@@ -47,10 +48,14 @@ class SaleStatView extends StatelessWidget {
                 onPressed: () => _scaffoldKey.currentState.openEndDrawer(),
               ),
             ),
+
             SliverPadding(
               padding: fieldPadding,
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
+                  verticalSpaceMedium,
+                  _buildRevenueStat(model),
+                  verticalSpaceMedium,
                   _SaleResultView(
                     model: model,
                     uid: salesmen.userId,
@@ -64,6 +69,26 @@ class SaleStatView extends StatelessWidget {
       viewModelBuilder: () => SalesmenViewModel(),
     );
   }
+
+  Widget _buildRevenueStat(SalesmenViewModel model) => StreamBuilder(
+      stream: model.userSaleStream(salesmen.userId),
+      builder: (_, snapshot) {
+        List<Sale> s = snapshot.data ?? [];
+
+        double earnedRevenue = s.fold(0, (sum, item) => sum + item.amountPaid);
+        double totalCourseFee = s.fold(0, (sum, item) => sum + item.courseFee);
+        return Wrap(
+          spacing: 4,
+          children: [
+            Chip(
+                label: Text(
+                    'Total earnings: ${formatCurrency.format(earnedRevenue)}')),
+            Chip(
+                label: Text(
+                    'Pending: ${formatCurrency.format(totalCourseFee - earnedRevenue)}'))
+          ],
+        );
+      });
 }
 
 class _SaleResultView extends StatelessWidget {

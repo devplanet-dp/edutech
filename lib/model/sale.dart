@@ -37,6 +37,7 @@ const List<String> YEAR_STUDY = [
 
 enum LeadSource { SELF_GENERATED, CGFL, RSL }
 enum RegisterType { VERZEO, SMARTKNOWER }
+enum ProgramType { SELD_PACED, MENTOR_LED, ADVANCED }
 
 class Sale {
   String id;
@@ -54,6 +55,9 @@ class Sale {
   double amountPaid;
   double courseFee;
   String paymentProof;
+  String orderDate;
+  String courseName;
+  ProgramType programType;
 
   Sale(
       {this.id,
@@ -70,12 +74,16 @@ class Sale {
       this.pointContact,
       this.amountPaid,
       this.courseFee,
+      this.orderDate,
+      this.programType,
+      this.courseName,
       this.paymentProof});
 
   bool get isPaymentCompleted => amountPaid == courseFee;
 
   Sale.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    courseName = json['course_name'] ?? 'N/A';
     userId = json['user_id'];
     createdAt = json['created_at'];
     studentName = json['student_name'];
@@ -86,6 +94,7 @@ class Sale {
     yearStudy = json['year_study'];
     registeredFor = RegisterType.values.elementAt(json['registered_for']) ??
         RegisterType.VERZEO;
+    programType = ProgramType.values.elementAt(json['program_type'] ?? 1);
     leadSource =
         LeadSource.values.elementAt(json['lead_source']) ?? RegisterType.VERZEO;
     pointContact = json['point_contact'];
@@ -100,6 +109,7 @@ class Sale {
     data['user_id'] = this.userId;
     data['created_at'] = this.createdAt;
     data['student_name'] = this.studentName;
+    data['course_name'] = this.courseName;
     data['email'] = this.email;
     data['mobile_number'] = this.mobileNumber;
     data['date_registration'] = this.dateRegistration;
@@ -107,6 +117,31 @@ class Sale {
     data['year_study'] = this.yearStudy;
     data['registered_for'] = this.registeredFor.index;
     data['lead_source'] = this.leadSource.index;
+    data['program_type'] = this.programType.index;
+    data['point_contact'] = this.pointContact;
+    data['amount_paid'] = this.amountPaid;
+    data['course_fee'] = this.courseFee;
+    data['payment_proof'] = this.paymentProof;
+    return data;
+  }
+
+  Map<String, dynamic> toMap() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['user_id'] = this.userId;
+    data['created_at'] = this.createdAt;
+    data['order_date'] =
+        '${createdAt.toDate().year}/${createdAt.toDate().month}/${createdAt.toDate().day}';
+    data['student_name'] = this.studentName;
+    data['course_name'] = this.courseName;
+    data['email'] = this.email;
+    data['mobile_number'] = this.mobileNumber;
+    data['date_registration'] = this.dateRegistration;
+    data['college_name'] = this.collegeName;
+    data['year_study'] = this.yearStudy;
+    data['registered_for'] = this.registeredFor.index;
+    data['lead_source'] = this.leadSource.index;
+    data['program_type'] = this.programType.index;
     data['point_contact'] = this.pointContact;
     data['amount_paid'] = this.amountPaid;
     data['course_fee'] = this.courseFee;

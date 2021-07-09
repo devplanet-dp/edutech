@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:edutech/model/sale.dart';
 import 'package:edutech/model/user.dart';
 import 'package:edutech/ui/shared/app_colors.dart';
@@ -9,6 +10,7 @@ import 'package:edutech/utils/app_utils.dart';
 import 'package:edutech/viewmodel/dashboard/dash_view_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:stacked/stacked.dart';
 
 class DashView extends StatelessWidget {
@@ -26,6 +28,11 @@ class DashView extends StatelessWidget {
             isDark: model.isDark(),
             isLarge: true,
           ),
+          actions: [
+            IconButton(
+                onPressed: () => model.signOut(),
+                icon: Icon(LineIcons.alternateSignOut))
+          ],
         ),
         body: SingleChildScrollView(
           child: Column(
@@ -45,13 +52,15 @@ class DashView extends StatelessWidget {
                     subHeader: 'Explore Salesmen',
                     icon: Icons.supervised_user_circle,
                     primaryColor: kcPrimaryColor,
-                    onTap: () =>model.navigateToSalesmenView(),
+                    onTap: () => model.navigateToSalesmenView(),
                     isDark: model.isDark()),
               ),
               verticalSpaceMedium,
               Padding(
                 padding: fieldPadding,
-                child: _GraphView(),
+                child: _GraphView(
+                  saleStream: model.streamAppSales(limit: 10),
+                ),
               )
             ],
           ),
@@ -99,7 +108,7 @@ class _StatRow extends StatelessWidget {
   }
 
   Widget _buildRevenueStat(bool isPending) => StreamBuilder(
-      stream: model.streamAllSales(),
+      stream: model.streamAppSales(),
       builder: (_, snapshot) {
         List<Sale> s = snapshot.data ?? [];
 
@@ -145,7 +154,9 @@ class _StatRow extends StatelessWidget {
 }
 
 class _GraphView extends StatefulWidget {
-  const _GraphView({Key key}) : super(key: key);
+  final Stream<List<Sale>> saleStream;
+
+  const _GraphView({Key key, @required this.saleStream}) : super(key: key);
 
   @override
   __GraphViewState createState() => __GraphViewState();
@@ -163,10 +174,10 @@ class __GraphViewState extends State<_GraphView> {
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      aspectRatio: 1.23,
+      aspectRatio: 1.2,
       child: Container(
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(18)),
+        decoration:  BoxDecoration(
+          borderRadius: kBorderMedium,
           gradient: LinearGradient(
             colors: [
               Color(0xff2c274c),
@@ -181,39 +192,17 @@ class __GraphViewState extends State<_GraphView> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                const SizedBox(
-                  height: 37,
-                ),
-                const Text(
-                  'Unfold Shop 2018',
-                  style: TextStyle(
-                    color: Color(0xff827daa),
-                    fontSize: 16,
-                  ),
+                verticalSpaceMedium,
+                Text(
+                  'Daily Sales',
+                  style: kBodyStyle.copyWith(color: kAltWhite),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(
-                  height: 4,
-                ),
-                const Text(
-                  'Monthly Sales',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(
-                  height: 37,
-                ),
+                verticalSpaceMedium,
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 16.0, left: 6.0),
-                    child: LineChart(
-                      isShowingMainData ? sampleData1() : sampleData2(),
-                      swapAnimationDuration: const Duration(milliseconds: 250),
-                    ),
+                    padding: fieldPaddingAll,
+                    child: _buildChart(),
                   ),
                 ),
                 const SizedBox(
@@ -221,24 +210,61 @@ class __GraphViewState extends State<_GraphView> {
                 ),
               ],
             ),
-            IconButton(
-              icon: Icon(
-                Icons.refresh,
-                color: Colors.white.withOpacity(isShowingMainData ? 1.0 : 0.5),
-              ),
-              onPressed: () {
-                setState(() {
-                  isShowingMainData = !isShowingMainData;
-                });
-              },
-            )
+            // IconButton(
+            //   icon: Icon(
+            //     Icons.refresh,
+            //     color: Colors.white.withOpacity(isShowingMainData ? 1.0 : 0.5),
+            //   ),
+            //   onPressed: () {
+            //     setState(() {
+            //       isShowingMainData = !isShowingMainData;
+            //     });
+            //   },
+            // )
           ],
         ),
       ),
     );
   }
 
-  LineChartData sampleData1() {
+  Widget _buildChart() {
+    return StreamBuilder<List<Sale>>(
+        stream: widget.saleStream,
+        builder: (_, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          List<Sale> s = snapshot.data ?? [];
+          return LineChart(
+            salesData(s),
+            swapAnimationDuration: const Duration(milliseconds: 250),
+          );
+        });
+  }
+
+  LineChartData salesData(List<Sale> sales) {
+    var saleMap = List.generate(sales.length, (index) => sales[index].toMap());
+    var groupedSales = groupBy(saleMap, (sale) => sale['order_date']);
+    var month;
+    List<FlSpot> spots = [];
+
+    groupedSales.forEach((key, value) {
+      List<Sale> s = value.map((e) => Sale.fromJson(e)).toList();
+      double earnedRevenue = s.fold(0, (sum, item) => sum + item.amountPaid);
+
+      double x = double.parse((key.toString().split('/')[2]));
+      month = key.toString().split('/')[1];
+      print(month);
+      spots.add(FlSpot(x, earnedRevenue));
+    });
+    //sort values
+    spots.sort((a, b) => a.x.compareTo(b.x));
+
+    var max = spots.reduce((curr, next) => curr.y > next.y ? curr : next);
+    var min = spots.reduce((curr, next) => curr.y < next.y ? curr : next);
+
     return LineChartData(
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
@@ -248,49 +274,34 @@ class __GraphViewState extends State<_GraphView> {
         handleBuiltInTouches: true,
       ),
       gridData: FlGridData(
-        show: false,
+        show: true,
       ),
       titlesData: FlTitlesData(
         bottomTitles: SideTitles(
           showTitles: true,
-          reservedSize: 22,
+          reservedSize: 8,
+          rotateAngle: -60,
           getTextStyles: (value) => const TextStyle(
-            color: Color(0xff72719b),
+            color: kAltWhite,
             fontWeight: FontWeight.bold,
-            fontSize: 16,
+            fontSize: 12,
           ),
-          margin: 10,
           getTitles: (value) {
-            switch (value.toInt()) {
-              case 2:
-                return 'SEPT';
-              case 7:
-                return 'OCT';
-              case 12:
-                return 'DEC';
-            }
-            return '';
+            return '$month/${value.toInt()}';
           },
         ),
         leftTitles: SideTitles(
           showTitles: true,
+          interval: max.y / 3,
           getTextStyles: (value) => const TextStyle(
-            color: Color(0xff75729e),
+            color: kAltWhite,
             fontWeight: FontWeight.bold,
-            fontSize: 14,
+            fontSize: 10,
           ),
+          rotateAngle: -60,
           getTitles: (value) {
-            switch (value.toInt()) {
-              case 1:
-                return '1m';
-              case 2:
-                return '2m';
-              case 3:
-                return '3m';
-              case 4:
-                return '5m';
-            }
-            return '';
+
+            return '${formatCurrency.format(value)}';
           },
           margin: 8,
           reservedSize: 30,
@@ -314,12 +325,27 @@ class __GraphViewState extends State<_GraphView> {
           ),
         ),
       ),
-      minX: 0,
-      maxX: 14,
-      maxY: 4,
-      minY: 0,
-      lineBarsData: linesBarData1(),
+      lineBarsData: linesSalesData(spots),
     );
+  }
+
+  List<LineChartBarData> linesSalesData(List<FlSpot> spots) {
+    final lineChartBarData1 = LineChartBarData(
+      spots: spots,
+      isCurved: true,
+      colors: [
+        const Color(0xff4af699),
+      ],
+      barWidth: 4,
+      isStrokeCapRound: true,
+      dotData: FlDotData(
+        show: true,
+      ),
+      belowBarData: BarAreaData(
+        show: true,
+      ),
+    );
+    return [lineChartBarData1];
   }
 
   List<LineChartBarData> linesBarData1() {

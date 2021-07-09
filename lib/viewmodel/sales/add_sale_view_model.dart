@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:edutech/model/courses.dart';
 import 'package:edutech/model/sale.dart';
 import 'package:edutech/services/cloud_storage_service.dart';
 import 'package:edutech/services/firestore_service.dart';
@@ -30,6 +31,7 @@ class AddSaleViewModel extends BaseModel {
   final pointContactController = TextEditingController();
   final amountPaidController = TextEditingController();
   final courseFeeController = TextEditingController();
+  final courseNameController = TextEditingController();
 
   DateTime _regDate;
 
@@ -40,6 +42,10 @@ class AddSaleViewModel extends BaseModel {
   File get attachment => _attachment;
 
   bool get haveMedia => attachment != null;
+
+  Courses _courses;
+
+  Courses get courses => _courses;
 
   Future selectImage() async {
     var tempImage = await _imageSelector.selectImage();
@@ -72,6 +78,18 @@ class AddSaleViewModel extends BaseModel {
     _selectedYear = year;
     notifyListeners();
   }
+  ///program type
+  ProgramType _programType = ProgramType.SELD_PACED;
+
+  ProgramType get selectedProgramType => _programType;
+
+  bool isProgSelected(ProgramType type) => selectedProgramType == type;
+
+  void setProgType(ProgramType type) {
+    _programType = type;
+    notifyListeners();
+  }
+
 
   ///registered for
   RegisterType _regType = RegisterType.VERZEO;
@@ -97,6 +115,12 @@ class AddSaleViewModel extends BaseModel {
     notifyListeners();
   }
 
+  void setCourseName(String name) {
+    courseNameController.text = name;
+    _navigationService.back();
+    notifyListeners();
+  }
+
   void setAmountPaid(String amount) {
     amountPaidController.text = amount;
     _navigationService.back();
@@ -107,6 +131,20 @@ class AddSaleViewModel extends BaseModel {
     courseFeeController.text = amount;
     _navigationService.back();
     notifyListeners();
+  }
+
+  Future getCourses() async {
+    setBusy(true);
+    var result = await _firestoreService.getAllCourses();
+
+    if (!result.hasError) {
+      _courses = result.data as Courses;
+      setBusy(false);
+    } else {
+      setBusy(false);
+      _dialogService.showDialog(
+          title: 'Oops', description: result.errorMessage);
+    }
   }
 
   Future<bool> addPost() async {
@@ -129,9 +167,11 @@ class AddSaleViewModel extends BaseModel {
         mobileNumber: mobileController.text,
         dateRegistration: Timestamp.fromDate(dateReg),
         collegeName: collegeController.text,
+        courseName: courseNameController.text,
         yearStudy: selectedYear,
         registeredFor: selectedRegType,
         leadSource: selectedLeadSource,
+        programType: selectedProgramType,
         pointContact: pointContactController.text,
         amountPaid: double.parse(amountPaidController.text),
         courseFee: double.parse(courseFeeController.text)));
@@ -165,6 +205,7 @@ class AddSaleViewModel extends BaseModel {
     pointContactController.text = '';
     amountPaidController.text = '';
     courseFeeController.text = '';
+    courseNameController.text = '';
     notifyListeners();
   }
 
@@ -180,6 +221,7 @@ class AddSaleViewModel extends BaseModel {
     pointContactController.dispose();
     amountPaidController.dispose();
     courseFeeController.dispose();
+    courseNameController.dispose();
 
     super.dispose();
   }
