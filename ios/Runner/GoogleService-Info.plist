@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>782889408582-gbakkodol17mk7vkge64lmq73mpiv085.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.782889408582-gbakkodol17mk7vkge64lmq73mpiv085</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDNsy9N8DQYnEI2kR1RnX2EbSnVygTqwGk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>782889408582</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.verzeo.edutech</string>
+	<key>PROJECT_ID</key>
+	<string>dev-edutech</string>
+	<key>STORAGE_BUCKET</key>
+	<string>dev-edutech.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:782889408582:ios:1e22e7c4a56d1f6fb25247</string>
+</dict>
+</plist>
