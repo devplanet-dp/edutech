@@ -4,6 +4,7 @@ import 'package:edutech/ui/drawer/filter_drawer_view.dart';
 import 'package:edutech/ui/shared/app_colors.dart';
 import 'package:edutech/ui/shared/shared_styles.dart';
 import 'package:edutech/ui/shared/ui_helpers.dart';
+import 'package:edutech/ui/views/dashboard/dash_view.dart';
 import 'package:edutech/ui/views/sales/sale_item_view.dart';
 import 'package:edutech/ui/widgets/app_info.dart';
 import 'package:edutech/ui/widgets/sliver_app_bar.dart';
@@ -42,24 +43,43 @@ class SaleStatView extends StatelessWidget {
             CustomSliverAppBar(
               title: salesmen.name,
               isDark: false,
-              action: IconButton(
-                icon: Icon(LineIcons.filter),
-                color: kcPrimaryColor,
-                onPressed: () => _scaffoldKey.currentState.openEndDrawer(),
+              action: Row(
+                children: [
+                  ActionChip(
+                      backgroundColor:
+                          model.showGraph ? kAltBg.withOpacity(0.4) : kcAccent,
+                      label:
+                          Text(model.showGraph ? 'Hide graph' : 'Show graph'),
+                      onPressed: () => model.toggleShowGraph()),
+                  IconButton(
+                    icon: Icon(LineIcons.fileCsv),
+                    color: kcPrimaryColor,
+                    onPressed: () => model.exportCSVFile(salesmen),
+                  ),
+                  IconButton(
+                    icon: Icon(LineIcons.filter),
+                    color: kcPrimaryColor,
+                    onPressed: () => _scaffoldKey.currentState.openEndDrawer(),
+                  ),
+                ],
               ),
             ),
-
             SliverPadding(
               padding: fieldPadding,
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   verticalSpaceMedium,
                   _buildRevenueStat(model),
-                  verticalSpaceMedium,
+                  AnimatedContainer(
+                      duration: const Duration(seconds: 1),
+                      child: model.showGraph
+                          ? GraphView(
+                              saleStream: model.userSaleStream(salesmen.userId))
+                          : EmptyBox),
                   _SaleResultView(
                     model: model,
                     uid: salesmen.userId,
-                  )
+                  ),
                 ]),
               ),
             )

@@ -1,3 +1,4 @@
+import 'package:edutech/constants/route_name.dart';
 import 'package:edutech/model/sale.dart';
 import 'package:edutech/ui/shared/bottom_sheet_type.dart';
 import 'package:edutech/ui/sheets/sale_sheet.dart';
@@ -8,6 +9,7 @@ import '../../locator.dart';
 
 class SaleItemViewModel extends BaseModel {
   final _bottomSheetService = locator<BottomSheetService>();
+  final _navigationService = locator<NavigationService>();
 
   bool isPaymentCompleted(Sale sale) => sale.courseFee == sale.amountPaid;
 
@@ -16,19 +18,24 @@ class SaleItemViewModel extends BaseModel {
         SaleSheetView(
           completer: completer,
           request: sheetRequest,
+
         )
   };
 
   Future showSaleSheet(Sale sale) async {
     _bottomSheetService.setCustomSheetBuilders(saleInfoSheetBuilder);
-    await _bottomSheetService.showCustomSheet(
+   var result =  await _bottomSheetService.showCustomSheet(
         variant: BottomSheetType.floating,
         isScrollControlled: true,
         customData: sale,
         title: sale.studentName,
-        description: '',
+        description: currentUser.userId,
         mainButtonTitle: '',
         barrierDismissible: true,
         secondaryButtonTitle: '');
+
+   if(result.confirmed){
+     _navigationService.navigateTo(AddSaleViewRoute,arguments: sale);
+   }
   }
 }

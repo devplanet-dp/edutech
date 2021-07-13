@@ -55,7 +55,7 @@ class SaleItemView extends StatelessWidget {
                   maxLines: 1,
                 ),
                 AutoSizeText(
-                  sale.collegeName,
+                  sale.courseName,
                   maxLines: 1,
                   style: kBodyStyle.copyWith(
                       fontSize: 10, fontWeight: FontWeight.bold),

@@ -310,6 +310,21 @@ class FirestoreService {
         snapshot.docs.map((doc) => Sale.fromJson(doc.data())).toList());
   }
 
+  Future<FirebaseResult> getMySales(String uid) async {
+    try {
+      QuerySnapshot snap =
+          await _saleCollectionReference.where('user_id', isEqualTo: uid).get();
+      return FirebaseResult(
+          data: snap.docs.map((doc) => Sale.fromSnapshot(doc)).toList());
+    } catch (e) {
+      if (e is PlatformException) {
+        return FirebaseResult.error(errorMessage: e.message);
+      }
+
+      return FirebaseResult.error(errorMessage: e.toString());
+    }
+  }
+
   Stream<List<Sale>> streamSales({int limit}) {
     Stream<QuerySnapshot> snap = limit == null
         ? _saleCollectionReference.snapshots()

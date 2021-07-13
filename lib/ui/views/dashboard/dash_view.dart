@@ -58,10 +58,11 @@ class DashView extends StatelessWidget {
               verticalSpaceMedium,
               Padding(
                 padding: fieldPadding,
-                child: _GraphView(
+                child: GraphView(
                   saleStream: model.streamAppSales(limit: 10),
                 ),
-              )
+              ),
+              verticalSpaceMedium,
             ],
           ),
         ),
@@ -153,16 +154,16 @@ class _StatRow extends StatelessWidget {
   }
 }
 
-class _GraphView extends StatefulWidget {
+class GraphView extends StatefulWidget {
   final Stream<List<Sale>> saleStream;
 
-  const _GraphView({Key key, @required this.saleStream}) : super(key: key);
+  const GraphView({Key key, @required this.saleStream}) : super(key: key);
 
   @override
-  __GraphViewState createState() => __GraphViewState();
+  _GraphViewState createState() => _GraphViewState();
 }
 
-class __GraphViewState extends State<_GraphView> {
+class _GraphViewState extends State<GraphView> {
   bool isShowingMainData;
 
   @override
@@ -256,7 +257,6 @@ class __GraphViewState extends State<_GraphView> {
 
       double x = double.parse((key.toString().split('/')[2]));
       month = key.toString().split('/')[1];
-      print(month);
       spots.add(FlSpot(x, earnedRevenue));
     });
     //sort values
@@ -266,6 +266,7 @@ class __GraphViewState extends State<_GraphView> {
     var min = spots.reduce((curr, next) => curr.y < next.y ? curr : next);
 
     return LineChartData(
+      minY: 0,
       lineTouchData: LineTouchData(
         touchTooltipData: LineTouchTooltipData(
           tooltipBgColor: Colors.blueGrey.withOpacity(0.8),

@@ -17,7 +17,9 @@ import 'package:line_icons/line_icon.dart';
 import 'package:stacked/stacked.dart';
 
 class AddSaleView extends StatelessWidget {
-  AddSaleView({Key key}) : super(key: key);
+  final Sale sale;
+
+  AddSaleView({Key key, this.sale}) : super(key: key);
 
   //keys :-----------------------------------------------------------
   final formKey = GlobalKey<FormState>();
@@ -27,6 +29,9 @@ class AddSaleView extends StatelessWidget {
     return ViewModelBuilder<AddSaleViewModel>.reactive(
       onModelReady: (model) {
         model.getCourses();
+        if(sale!=null){
+          model.setData(sale);
+        }
       },
       builder: (context, model, child) => BusyOverlay(
         show: model.busy,
@@ -96,7 +101,7 @@ class AddSaleView extends StatelessWidget {
                       verticalSpaceSmall,
                       _buildCollegeName(model),
                       verticalSpaceSmall,
-                      _buildCourseInput(context,model),
+                      _buildCourseInput(context, model),
                       Divider(),
                       Text(
                         'Program Type:',
@@ -133,7 +138,7 @@ class AddSaleView extends StatelessWidget {
                         isLoading: model.busy,
                         onPressed: () {
                           if (formKey.currentState.validate()) {
-                            model.addPost();
+                            model.addPost(saleId: sale?.id);
                           }
                         },
                       ),
@@ -295,7 +300,7 @@ class AddSaleView extends StatelessWidget {
         maxTime: DateTime(2030, 1, 1));
 
     if (picked != null) {
-      model.setBirthDate(picked);
+      model.setRegDate(picked);
     }
   }
 
@@ -476,6 +481,7 @@ class AddSaleView extends StatelessWidget {
       },
     );
   }
+
 }
 
 class MediaSelector extends StatelessWidget {

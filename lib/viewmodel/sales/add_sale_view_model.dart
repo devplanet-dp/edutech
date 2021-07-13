@@ -6,6 +6,7 @@ import 'package:edutech/model/sale.dart';
 import 'package:edutech/services/cloud_storage_service.dart';
 import 'package:edutech/services/firestore_service.dart';
 import 'package:edutech/services/image_selector.dart';
+import 'package:edutech/utils/app_utils.dart';
 import 'package:edutech/viewmodel/base_model.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -55,7 +56,7 @@ class AddSaleViewModel extends BaseModel {
     }
   }
 
-  void setBirthDate(DateTime regDate) {
+  void setRegDate(DateTime regDate) {
     _regDate = regDate;
     dateRegController.text =
         "${regDate?.month}-${regDate?.day}-${regDate?.year}";
@@ -78,6 +79,7 @@ class AddSaleViewModel extends BaseModel {
     _selectedYear = year;
     notifyListeners();
   }
+
   ///program type
   ProgramType _programType = ProgramType.SELD_PACED;
 
@@ -89,7 +91,6 @@ class AddSaleViewModel extends BaseModel {
     _programType = type;
     notifyListeners();
   }
-
 
   ///registered for
   RegisterType _regType = RegisterType.VERZEO;
@@ -147,9 +148,9 @@ class AddSaleViewModel extends BaseModel {
     }
   }
 
-  Future<bool> addPost() async {
+  Future<bool> addPost({String saleId}) async {
     setBusy(true);
-    var id = Uuid().v1();
+    var id = saleId == null ? Uuid().v1() : saleId;
     CloudStorageResult storageResult;
 
     storageResult = await _cloudStorageService.uploadImage(
@@ -191,6 +192,27 @@ class AddSaleViewModel extends BaseModel {
       resetView();
     }
     return result != null;
+  }
+
+  setData(Sale sale) async {
+    setBusy(true);
+    if (sale.paymentProof.isNotEmpty) {
+      _attachment = await urlToFile(sale.paymentProof);
+    }
+    studentNameController.text = sale.studentName;
+    emailController.text = sale.email;
+    mobileController.text = sale.mobileNumber;
+    setRegDate(sale.dateRegistration.toDate());
+    collegeController.text = sale.collegeName;
+    courseNameController.text = sale.courseName;
+    setProgType(sale.programType);
+    setYearStudy(sale.yearStudy);
+    setRegType(sale.registeredFor);
+    setLeadSource(sale.leadSource);
+    amountPaidController.text = sale.amountPaid.toString();
+    courseFeeController.text = sale.courseFee.toString();
+    setBusy(false);
+    notifyListeners();
   }
 
   resetView() {

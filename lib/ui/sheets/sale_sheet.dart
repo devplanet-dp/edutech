@@ -13,13 +13,17 @@ class SaleSheetView extends StatelessWidget {
   final SheetRequest request;
   final Function(SheetResponse) completer;
 
-  const SaleSheetView({Key key, this.request, this.completer})
-      : super(key: key);
+  const SaleSheetView({
+    Key key,
+    this.request,
+    this.completer,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     Sale s = request.customData as Sale;
     DateTime regDate = s.dateRegistration.toDate();
+    bool enableEdit = s.userId == request.description;
     return Material(
       shape: RoundedRectangleBorder(borderRadius: kBorderMedium),
       child: Padding(
@@ -39,6 +43,14 @@ class SaleSheetView extends StatelessWidget {
                 Expanded(
                   child: SizedBox(),
                 ),
+                enableEdit
+                    ? IconButton(
+                        onPressed: () {
+                          completer(SheetResponse(confirmed: true));
+                        },
+                        icon: Icon(Icons.edit),
+                      )
+                    : EmptyBox,
                 TextButton(
                   onPressed: () => completer(SheetResponse(confirmed: false)),
                   child: Text('Close'),

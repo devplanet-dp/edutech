@@ -1,4 +1,5 @@
 import 'package:edutech/constants/route_name.dart';
+import 'package:edutech/model/sale.dart';
 import 'package:edutech/model/user.dart';
 import 'package:edutech/ui/views/account/user_account_view.dart';
 import 'package:edutech/ui/views/changePwd/change_pwd_view.dart';
@@ -54,9 +55,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         viewToShow: ChangePasswordView(),
       );
     case AddSaleViewRoute:
+      var sale = settings.arguments as Sale;
       return _getPageRoute(
         routeName: settings.name,
-        viewToShow: AddSaleView(),
+        viewToShow: AddSaleView(
+          sale: sale,
+        ),
       );
 
     case UserAccountViewRoute:
