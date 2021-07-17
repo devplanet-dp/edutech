@@ -10,6 +10,7 @@ import 'package:edutech/viewmodel/base_model.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import '../../locator.dart';
@@ -163,7 +164,9 @@ class SalesmenViewModel extends BaseModel {
           String file = "$dir";
 
           File f =
-              File(file + "/${salesman.name} - sales - ${DateTime.now()}.csv");
+              File(file + "/${salesman.name}-${DateTime.now()}.csv");
+
+          // Share.shareFiles([f.path], text: '${salesman.name} report');
 
           f.writeAsString(csv);
           await _dialogService.showDialog(
